@@ -90,7 +90,11 @@ namespace Certify
                 ? X509CertificateEnrollmentContext.ContextMachine
                 : X509CertificateEnrollmentContext.ContextUser;
 
-            objPkcs10.InitializeFromPrivateKey(context, privateKey, templateName);
+            objPkcs10.InitializeFromPrivateKey(context, privateKey, "");
+
+            var templateExtension = new CX509ExtensionTemplateName();
+            templateExtension.InitializeEncode(templateName);
+            objPkcs10.X509Extensions.Add((CX509Extension)templateExtension);
 
             var objDN = new CX500DistinguishedName();
 
@@ -205,7 +209,12 @@ namespace Certify
                 ? X509CertificateEnrollmentContext.ContextMachine
                 : X509CertificateEnrollmentContext.ContextUser;
 
-            objPkcs10.InitializeFromPrivateKey(context, privateKey, templateName);
+            objPkcs10.InitializeFromPrivateKey(context, privateKey, "");
+
+            var templateExtension = new CX509ExtensionTemplateName();
+            templateExtension.InitializeEncode(templateName);
+            objPkcs10.X509Extensions.Add((CX509Extension)templateExtension);
+
             objPkcs10.Encode();
 
             var pkcs7 = new CX509CertificateRequestPkcs7();
@@ -313,7 +322,7 @@ namespace Certify
 
             if (iDisposition != CR_DISP_ISSUED)
                 throw new Exception($"[X] Cert not yet issued! (iDisposition: {iDisposition})");
-            
+
             var cert = objCertRequest.GetCertificate(CR_OUT_BASE64);
 
             outputStream.WriteLine("-----BEGIN CERTIFICATE-----");
@@ -485,7 +494,7 @@ namespace Certify
 
             var base64 = Convert.ToBase64String(stream.GetBuffer(), 0, (int)stream.Length).ToCharArray();
             outputStream.WriteLine("-----BEGIN RSA PRIVATE KEY-----");
-            
+
             // Output as Base64 with lines chopped at 64 characters
             for (var i = 0; i < base64.Length; i += 64)
             {
