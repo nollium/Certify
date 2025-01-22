@@ -6,12 +6,12 @@
         {
             Domain = null;
             LdapServer = null;
-            //AuthenticationType = null;
-            //Credential = null;
+            AuthenticationType = System.DirectoryServices.AuthenticationTypes.Secure;
+            Credential = null;
         }
         public string? Domain { get; set; }
         public string? LdapServer { get; set; }
-        //public AuthenticationTypes? AuthenticationType { get; set; }
-        //public NetworkCredential? Credential { get; set; }
+        public System.DirectoryServices.AuthenticationTypes AuthenticationType { get; set; }
+        public System.Net.NetworkCredential? Credential { get; set; }
     }
 }

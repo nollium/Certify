@@ -67,6 +67,8 @@ namespace Certify.Commands
         private string? _certificateAuthority = null;
         private string? _domain = null;
         private string? _ldapServer = null;
+        private string? _username = null;
+        private string? _password = null;
         private FindFilter _findFilter = FindFilter.None;
 
         public void Execute(Dictionary<string, string> arguments)
@@ -87,6 +89,26 @@ namespace Certify.Commands
             if (arguments.ContainsKey("/ldapserver"))
             {
                 _ldapServer = arguments["/ldapserver"];
+            }
+
+            if (arguments.ContainsKey("/username"))
+            {
+                _username = arguments["/username"];
+            }
+
+            if (arguments.ContainsKey("/password"))
+            {
+                _password = arguments["/password"];
+            }
+
+            // If any auth parameter is provided, verify all required auth parameters are present
+            if (!string.IsNullOrEmpty(_username) || !string.IsNullOrEmpty(_password))
+            {
+                if (string.IsNullOrEmpty(_domain) || string.IsNullOrEmpty(_username) || string.IsNullOrEmpty(_password) || string.IsNullOrEmpty(_ldapServer))
+                {
+                    Console.WriteLine("[X] When using authentication, all of /domain, /username, /password, and /ldapserver are required!");
+                    return;
+                }
             }
 
             if (arguments.ContainsKey("/ca"))
@@ -132,10 +154,18 @@ namespace Certify.Commands
 
         public void FindTemplates(bool outputJSON = false)
         {
-            var ldap = new LdapOperations(new LdapSearchOptions()
+            var options = new LdapSearchOptions()
             {
-                Domain = _domain, LdapServer = _ldapServer
-            });
+                Domain = _domain,
+                LdapServer = _ldapServer
+            };
+
+            if (!string.IsNullOrEmpty(_username) && !string.IsNullOrEmpty(_password) && !string.IsNullOrEmpty(_domain))
+            {
+                options.Credential = new System.Net.NetworkCredential(_username, _password, _domain);
+            }
+
+            var ldap = new LdapOperations(options);
 
             if (!outputJSON)
                 Console.WriteLine($"[*] Using the search base '{ldap.ConfigurationPath}'");
@@ -745,7 +775,7 @@ namespace Certify.Commands
             if ( template.CertificateNameFlag==null || template.EnrollmentFlag == null) {
                 return false;
             }
-            
+
             if((((msPKICertificateNameFlag)template.CertificateNameFlag).HasFlag(msPKICertificateNameFlag.SUBJECT_ALT_REQUIRE_DNS)
                 || ((msPKICertificateNameFlag)template.CertificateNameFlag).HasFlag(msPKICertificateNameFlag.SUBJECT_REQUIRE_DNS_AS_CN))
                 && ((msPKIEnrollmentFlag)template.EnrollmentFlag).HasFlag(msPKIEnrollmentFlag.NO_SECURITY_EXTENSION)) {
