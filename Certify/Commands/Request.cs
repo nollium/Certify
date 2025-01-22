@@ -19,6 +19,10 @@ namespace Certify.Commands
             var template = "User";
             var machineContext = false;
             var install = false;
+            var domain = "";
+            var username = "";
+            var password = "";
+            var ldapServer = "";
 
             if (arguments.ContainsKey("/ca"))
             {
@@ -33,6 +37,36 @@ namespace Certify.Commands
             {
                 Console.WriteLine("[X] A /ca:CA is required! (format SERVER\\CA-NAME)");
                 return;
+            }
+
+            if (arguments.ContainsKey("/domain"))
+            {
+                domain = arguments["/domain"];
+            }
+
+            if (arguments.ContainsKey("/username"))
+            {
+                username = arguments["/username"];
+            }
+
+            if (arguments.ContainsKey("/password"))
+            {
+                password = arguments["/password"];
+            }
+
+            if (arguments.ContainsKey("/ldapserver"))
+            {
+                ldapServer = arguments["/ldapserver"];
+            }
+
+            // If any auth parameter is provided, verify all required auth parameters are present
+            if (!string.IsNullOrEmpty(domain) || !string.IsNullOrEmpty(username) || !string.IsNullOrEmpty(password))
+            {
+                if (string.IsNullOrEmpty(domain) || string.IsNullOrEmpty(username) || string.IsNullOrEmpty(password) || string.IsNullOrEmpty(ldapServer))
+                {
+                    Console.WriteLine("[X] When using authentication, all of /domain, /username, /password, and /ldapserver are required!");
+                    return;
+                }
             }
 
             if (arguments.ContainsKey("/template"))
@@ -100,7 +134,7 @@ namespace Certify.Commands
             }
             else
             {
-                Cert.RequestCert(CA, machineContext, template, subject, altName, url, sidExtension, install);
+                Cert.RequestCert(CA, machineContext, template, subject, altName, url, sidExtension, install, domain, username, password, ldapServer);
             }
         }
     }

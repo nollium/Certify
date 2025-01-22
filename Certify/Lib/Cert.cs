@@ -42,7 +42,7 @@ namespace Certify
         }
 
         // create a certificate request message from a given enterprise template name
-        private static CertificateRequest CreateCertRequestMessage(string templateName, bool machineContext = false, string subjectName = "", string altName = "", string url = "", string sidExtension = "")
+        private static CertificateRequest CreateCertRequestMessage(string templateName, bool machineContext = false, string subjectName = "", string altName = "", string url = "", string sidExtension = "", System.Net.NetworkCredential? credential = null)
         {
             if (String.IsNullOrEmpty(subjectName))
             {
@@ -53,13 +53,21 @@ namespace Certify
                 }
                 else
                 {
-                    if (WindowsIdentity.GetCurrent().IsSystem)
+                    if (credential != null)
                     {
-                        Console.WriteLine($"\n[!] WARNING: You are currently running as SYSTEM. You may want to use the /machine argument to use the machine account instead.");
+                        // Use LDAP to get the user's DN when credentials are provided
+                        subjectName = GetUserDNFromCredentials(credential);
+                        Console.WriteLine($"[*] No subject name specified, using provided credentials for subject");
                     }
-
-                    subjectName = GetCurrentUserDN();
-                    Console.WriteLine($"[*] No subject name specified, using current context as subject.");
+                    else
+                    {
+                        if (WindowsIdentity.GetCurrent().IsSystem)
+                        {
+                            Console.WriteLine($"\n[!] WARNING: You are currently running as SYSTEM. You may want to use the /machine argument to use the machine account instead.");
+                        }
+                        subjectName = GetCurrentUserDN();
+                        Console.WriteLine($"[*] No subject name specified, using current context as subject.");
+                    }
                 }
             }
 
@@ -343,25 +351,43 @@ namespace Certify
 
 
         // request a user/machine certificate
-        public static void RequestCert(string CA, bool machineContext = false, string templateName = "User", string subject = "", string altName = "", string url = "", string sidExtension = "", bool install = false)
+        public static void RequestCert(string CA, bool machineContext = false, string templateName = "User", string subject = "", string altName = "", string url = "", string sidExtension = "", bool install = false, string domain = "", string username = "", string password = "", string ldapServer = "")
         {
             if (machineContext && !WindowsIdentity.GetCurrent().IsSystem)
             {
                 Console.WriteLine("[*] Elevating to SYSTEM context for machine cert request");
-                Elevator.GetSystem(() => RequestCert(CA, machineContext, templateName, subject, altName, url, sidExtension, install));
+                Elevator.GetSystem(() => RequestCert(CA, machineContext, templateName, subject, altName, url, sidExtension, install, domain, username, password, ldapServer));
                 return;
             }
 
-            var userName = WindowsIdentity.GetCurrent().Name;
+            var userName = !string.IsNullOrEmpty(username) ? $"{domain}\\{username}" : WindowsIdentity.GetCurrent().Name;
             Console.WriteLine($"\r\n[*] Current user context    : {userName}");
 
-            var csr = CreateCertRequestMessage(templateName, machineContext, subject, altName, url, sidExtension);
+            // If credentials are provided, create a NetworkCredential object
+            System.Net.NetworkCredential? credential = null;
+            if (!string.IsNullOrEmpty(username) && !string.IsNullOrEmpty(password) && !string.IsNullOrEmpty(domain))
+            {
+                credential = new System.Net.NetworkCredential(username, password, domain);
+                using (var context = new System.DirectoryServices.AccountManagement.PrincipalContext(
+                    System.DirectoryServices.AccountManagement.ContextType.Domain,
+                    ldapServer,
+                    domain,
+                    System.DirectoryServices.AccountManagement.ContextOptions.SimpleBind,
+                    username,
+                    password))
+                {
+                    if (!context.ValidateCredentials(username, password))
+                    {
+                        throw new Exception("Invalid credentials provided");
+                    }
+                }
+            }
 
+            var csr = CreateCertRequestMessage(templateName, machineContext, subject, altName, url, sidExtension, credential);
 
             Console.WriteLine($"\r\n[*] Certificate Authority   : {CA}");
 
             // send the request to the CA
-
             int requestID;
             try
             {
@@ -577,6 +603,32 @@ namespace Certify
         private static string GetCurrentComputerDN()
         {
             return $"CN={System.Net.Dns.GetHostEntry("").HostName}";
+        }
+
+        // Helper method to get user DN from credentials using LDAP
+        private static string GetUserDNFromCredentials(System.Net.NetworkCredential credential)
+        {
+            try
+            {
+                var ldapPath = $"LDAP://{credential.Domain}";
+                using (var entry = new System.DirectoryServices.DirectoryEntry(ldapPath, credential.UserName, credential.Password))
+                {
+                    using (var searcher = new System.DirectoryServices.DirectorySearcher(entry))
+                    {
+                        searcher.Filter = $"(&(objectClass=user)(sAMAccountName={credential.UserName}))";
+                        var result = searcher.FindOne();
+                        if (result != null)
+                        {
+                            return result.Properties["distinguishedName"][0].ToString();
+                        }
+                    }
+                }
+                throw new Exception($"Could not find user {credential.UserName} in domain {credential.Domain}");
+            }
+            catch (Exception ex)
+            {
+                throw new Exception($"Error getting user DN: {ex.Message}");
+            }
         }
     }
 }
