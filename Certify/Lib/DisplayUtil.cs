@@ -6,9 +6,9 @@ using System.Security.AccessControl;
 using System.Security.Cryptography.X509Certificates;
 using System.Security.Principal;
 using System.Text.RegularExpressions;
-using Certify.Domain;
+using EnterpriseAdmin.Domain;
 
-namespace Certify.Lib
+namespace EnterpriseAdmin.Lib
 {
     class DisplayUtil
     {
@@ -165,7 +165,7 @@ namespace Certify.Lib
                 }
 
                 var ownerKey = $"{owner}\t{ownerSid}";
-                    
+
                 if(!objectControllers.ContainsKey(ownerKey))
                 {
                     objectControllers[ownerKey] = new ArrayList();
@@ -333,7 +333,7 @@ namespace Certify.Lib
                 return null;
             }
 
-            try 
+            try
             {
                 return dn.Substring(index + 3, dn.Length - index - 3).Replace(",DC=", ".");
             }

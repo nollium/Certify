@@ -1,8 +1,9 @@
 ﻿using CERTENROLLLib;
 using System;
 using System.Collections.Generic;
+using EnterpriseAdmin.Services;
 
-namespace Certify.Commands
+namespace EnterpriseAdmin.Commands
 {
     public class Download : ICommand
     {
@@ -10,7 +11,7 @@ namespace Certify.Commands
 
         public void Execute(Dictionary<string, string> arguments)
         {
-            Console.WriteLine("[*] Action: Download a Certificates");
+            Console.WriteLine("[*] Action: Download a Certificate");
 
             string CA;
             var install = arguments.ContainsKey("/install");
@@ -42,7 +43,7 @@ namespace Certify.Commands
                 return;
             }
 
-            Console.WriteLine($"[*] Certificates Authority   : {CA}");
+            Console.WriteLine($"[*] Certificate Authority   : {CA}");
             Console.WriteLine($"[*] Request ID              : {requestId}");
 
             // download the certificate from the CA
@@ -53,15 +54,15 @@ namespace Certify.Commands
                     ? X509CertificateEnrollmentContext.ContextMachine
                     : X509CertificateEnrollmentContext.ContextUser;
 
-                certPemString = Cert.DownloadAndInstallCert(CA, requestId, context);
+                certPemString = CertificateService.DownloadAndInstallCert(CA, requestId, context);
             }
             else
             {
-                certPemString = Cert.DownloadCert(CA, requestId);
+                certPemString = CertificateService.DownloadCert(CA, requestId);
             }
 
             // display everything
-            Console.WriteLine($"\r\n[*] cert.pem         :\r\n");
+            Console.WriteLine($"\r\n[*] certificate.pem         :\r\n");
             Console.WriteLine(certPemString);
         }
     }

@@ -1,6 +1,6 @@
 ﻿using System.Collections.Generic;
 
-namespace Certify
+namespace EnterpriseAdmin
 {
     public class ArgumentParserResult
     {

@@ -1,7 +1,7 @@
 ﻿using System;
 using System.Net;
 
-namespace Certify.Lib
+namespace EnterpriseAdmin.Lib
 {
     class HttpUtil
     {

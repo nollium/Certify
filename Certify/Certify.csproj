@@ -6,8 +6,8 @@
     <Platform Condition=" '$(Platform)' == '' ">AnyCPU</Platform>
     <ProjectGuid>{64524CA5-E4D0-41B3-ACC3-3BDBEFD40C97}</ProjectGuid>
     <OutputType>Exe</OutputType>
-    <RootNamespace>Certify</RootNamespace>
-    <AssemblyName>Certify</AssemblyName>
+    <RootNamespace>EnterpriseAdmin</RootNamespace>
+    <AssemblyName>DirectoryAdmin</AssemblyName>
     <TargetFrameworkVersion>v4.0</TargetFrameworkVersion>
     <FileAlignment>512</FileAlignment>
     <Deterministic>true</Deterministic>
@@ -83,7 +83,7 @@
   <ItemGroup>
     <Compile Include="Commands\CAs.cs" />
     <Compile Include="Commands\Download.cs" />
-    <Compile Include="Commands\Find.cs" />
+    <Compile Include="Commands\EnumerateTemplates.cs" />
     <Compile Include="Commands\ICommand.cs" />
     <Compile Include="Commands\PKIObjects.cs" />
     <Compile Include="Commands\Request.cs" />
@@ -101,13 +101,13 @@
     <Compile Include="Info.cs" />
     <Compile Include="Lib\CertSidExtension.cs" />
     <Compile Include="Lib\HttpUtil.cs" />
-    <Compile Include="Lib\LdapSearchOptions.cs" />
+    <Compile Include="Lib\DirectorySearchOptions.cs" />
     <Compile Include="Version.cs" />
-    <Compile Include="Lib\Cert.cs" />
+    <Compile Include="Lib\CertificateService.cs" />
     <Compile Include="Lib\DisplayUtil.cs" />
     <Compile Include="Lib\Elevator.cs" />
     <Compile Include="Lib\Interop.cs" />
-    <Compile Include="Lib\LdapOperations.cs" />
+    <Compile Include="Lib\DirectoryServiceOperations.cs" />
     <Compile Include="Program.cs" />
     <Compile Include="Properties\AssemblyInfo.cs" />
   </ItemGroup>

@@ -1,8 +1,8 @@
 ﻿using System;
 using System.Collections.Generic;
-using Certify.Commands;
+using EnterpriseAdmin.Commands;
 
-namespace Certify
+namespace EnterpriseAdmin
 {
     public class CommandCollection
     {
@@ -20,28 +20,27 @@ namespace Certify
             _availableCommands.Add(CAs.CommandName, () => new CAs());
             _availableCommands.Add(Request.CommandName, () => new Request());
             _availableCommands.Add(Download.CommandName, () => new Download());
-            _availableCommands.Add(Find.CommandName, () => new Find());
+            _availableCommands.Add(EnumerateTemplates.CommandName, () => new EnumerateTemplates());
             _availableCommands.Add(PKIObjects.CommandName, () => new PKIObjects());
         }
 
-        public bool ExecuteCommand(string commandName, Dictionary<string, string> arguments)
+        public bool ExecuteCommand(Dictionary<string, string> arguments)
         {
-            bool commandWasFound;
+            if (arguments == null || arguments.Count == 0)
+                return false;
 
-            if (string.IsNullOrEmpty(commandName) || _availableCommands.ContainsKey(commandName) == false)
-                commandWasFound= false;
-            else
-            {
-                // Create the command object 
-                var command = _availableCommands[commandName].Invoke();
-                
-                // and execute it with the arguments from the command line
-                command.Execute(arguments);
+            var commandName = arguments.ContainsKey("command") ? arguments["command"] : "";
 
-                commandWasFound = true;
-            }
+            if (string.IsNullOrEmpty(commandName) || !_availableCommands.ContainsKey(commandName))
+                return false;
 
-            return commandWasFound;
+            // Create the command object
+            var command = _availableCommands[commandName].Invoke();
+
+            // Execute it with the arguments
+            command.Execute(arguments);
+
+            return true;
         }
     }
 }

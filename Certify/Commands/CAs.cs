@@ -1,25 +1,26 @@
 ﻿using System;
 using System.Collections.Generic;
 using System.Linq;
-using Certify.Domain;
-using Certify.Lib;
+using EnterpriseAdmin.Domain;
+using EnterpriseAdmin.DirectoryServices;
+using EnterpriseAdmin.Lib;
 
-namespace Certify.Commands
+namespace EnterpriseAdmin.Commands
 {
     public class CAs : ICommand
     {
         public static string CommandName => "cas";
-        private LdapOperations _ldap = new LdapOperations();
+        private DirectoryServiceOperations _directoryService = new DirectoryServiceOperations();
         private bool skipWebServiceChecks;
         private bool hideAdmins;
         private bool showAllPermissions;
         private string? caArg;
         private string? domain;
-        private string? ldapServer;
+        private string? directoryServer;
 
         public void Execute(Dictionary<string, string> arguments)
         {
-            Console.WriteLine("[*] Action: Find certificate authorities");
+            Console.WriteLine("[*] Action: List certificate authorities");
 
             showAllPermissions = arguments.ContainsKey("/showAllPermissions");
             skipWebServiceChecks = arguments.ContainsKey("/skipWebServiceChecks");
@@ -44,18 +45,18 @@ namespace Certify.Commands
                 }
             }
 
-            if (arguments.ContainsKey("/ldapserver"))
+            if (arguments.ContainsKey("/server"))
             {
-                ldapServer = arguments["/ldapserver"];
+                directoryServer = arguments["/server"];
             }
 
-
-            _ldap = new LdapOperations(new LdapSearchOptions()
+            _directoryService = new DirectoryServiceOperations(new DirectorySearchOptions()
             {
-                Domain = domain, LdapServer = ldapServer
+                Domain = domain,
+                DirectoryServer = directoryServer
             });
 
-            Console.WriteLine($"[*] Using the search base '{_ldap.ConfigurationPath}'");
+            Console.WriteLine($"[*] Using the search base '{_directoryService.ConfigurationPath}'");
 
             DisplayRootCAs();
             DisplayNtAuthCertificates();
@@ -66,13 +67,13 @@ namespace Certify.Commands
         {
             Console.WriteLine("\n\n[*] Root CAs\n");
 
-            var rootCAs = _ldap.GetRootCAs();
+            var rootCAs = _directoryService.GetRootCAs();
             if(rootCAs == null) throw new NullReferenceException("RootCAs are null");
 
             foreach (var ca in rootCAs)
             {
                 if(ca.Certificates == null) continue;
-                
+
                 ca.Certificates.ForEach(cert =>
                 {
                     DisplayUtil.PrintCertificateInfo(cert);
@@ -85,7 +86,7 @@ namespace Certify.Commands
         {
             Console.WriteLine("\n\n[*] NTAuthCertificates - Certificates that enable authentication:\n");
 
-            var ntauth = _ldap.GetNtAuthCertificates();
+            var ntauth = _directoryService.GetNtAuthCertificates();
 
             if (ntauth.Certificates == null || !ntauth.Certificates.Any())
             {
@@ -103,7 +104,7 @@ namespace Certify.Commands
         private void DisplayEnterpriseCAs()
         {
             Console.WriteLine("\n[*] Enterprise/Enrollment CAs:\n");
-            foreach (var ca in _ldap.GetEnterpriseCAs(caArg))
+            foreach (var ca in _directoryService.GetEnterpriseCAs(caArg))
             {
                 DisplayUtil.PrintEnterpriseCaInfo(ca, hideAdmins, showAllPermissions);
 

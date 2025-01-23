@@ -3,22 +3,22 @@ using System.Collections.Generic;
 using System.DirectoryServices;
 using System.Linq;
 using System.Security.Principal;
-using Certify.Domain;
-using Certify.Lib;
+using EnterpriseAdmin.Domain;
+using EnterpriseAdmin.DirectoryServices;
 
-namespace Certify.Commands
+namespace EnterpriseAdmin.Commands
 {
     public class PKIObjects : ICommand
     {
         public static string CommandName => "pkiobjects";
-        private LdapOperations _ldap = new LdapOperations();
+        private DirectoryServiceOperations _directoryService = new DirectoryServiceOperations();
         private bool hideAdmins;
         private string? domain;
-        private string? ldapServer;
+        private string? directoryServer;
 
         public void Execute(Dictionary<string, string> arguments)
         {
-            Console.WriteLine("[*] Action: Find PKI object controllers");
+            Console.WriteLine("[*] Action: List PKI object controllers");
 
             hideAdmins = !arguments.ContainsKey("/showAdmins");
 
@@ -32,17 +32,18 @@ namespace Certify.Commands
                 }
             }
 
-            if (arguments.ContainsKey("/ldapserver"))
+            if (arguments.ContainsKey("/server"))
             {
-                ldapServer = arguments["/ldapserver"];
+                directoryServer = arguments["/server"];
             }
 
-            _ldap = new LdapOperations(new LdapSearchOptions()
+            _directoryService = new DirectoryServiceOperations(new DirectorySearchOptions()
             {
-                Domain = domain, LdapServer = ldapServer
+                Domain = domain,
+                DirectoryServer = directoryServer
             });
 
-            Console.WriteLine($"[*] Using the search base '{_ldap.ConfigurationPath}'");
+            Console.WriteLine($"[*] Using the search base '{_directoryService.ConfigurationPath}'");
 
             DisplayPKIObjectControllers();
         }
@@ -50,8 +51,8 @@ namespace Certify.Commands
         private void DisplayPKIObjectControllers()
         {
             Console.WriteLine("\n[*] PKI Object Controllers:");
-            var pkiObjects = _ldap.GetPKIObjects();
-            
+            var pkiObjects = _directoryService.GetPKIObjects();
+
             DisplayUtil.PrintPKIObjectControllers(pkiObjects, hideAdmins);
         }
     }

@@ -1,6 +1,6 @@
 ﻿using System.Collections.Generic;
 
-namespace Certify.Domain
+namespace EnterpriseAdmin.Domain
 {
     public class CertificateAuthorityWebServices
     {

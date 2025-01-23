@@ -7,11 +7,11 @@ using System.Threading;
 using System.IO;
 using System.Security.Cryptography;
 using System.Security.Principal;
-using Certify.Lib;
+using EnterpriseAdmin.DirectoryServices;
 
-namespace Certify
+namespace EnterpriseAdmin.Services
 {
-    class Cert
+    class CertificateService
     {
         // adapted from http://geekswithblogs.net/shaunxu/archive/2012/01/13/working-with-active-directory-certificate-service-via-c.aspx
         //
@@ -155,7 +155,7 @@ namespace Certify
 
                 // SID extension
                 if(!String.IsNullOrEmpty(sidExtension)) {
-                    var extBytes = Certify.Lib.CertSidExtension.EncodeSidExtension(new SecurityIdentifier(sidExtension));
+                    var extBytes = EnterpriseAdmin.Lib.CertSidExtension.EncodeSidExtension(new SecurityIdentifier(sidExtension));
                     var oid = new CObjectId();
                     oid.InitializeFromValue("1.3.6.1.4.1.311.25.2");
                     var sidExt = new CX509Extension();

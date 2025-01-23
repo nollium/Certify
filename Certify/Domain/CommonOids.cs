@@ -1,4 +1,4 @@
-﻿namespace Certify.Domain
+﻿namespace EnterpriseAdmin.Domain
 {
     public static class CommonOids
     {

@@ -1,7 +1,7 @@
 ﻿using System;
 using System.Runtime.InteropServices;
 
-namespace Certify
+namespace EnterpriseAdmin
 {
     public class Interop
     {

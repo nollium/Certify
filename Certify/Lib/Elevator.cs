@@ -3,7 +3,7 @@ using System.Diagnostics;
 using System.Runtime.InteropServices;
 using System.Security.Principal;
 
-namespace Certify.Lib
+namespace EnterpriseAdmin.Lib
 {
     internal class Elevator
     {

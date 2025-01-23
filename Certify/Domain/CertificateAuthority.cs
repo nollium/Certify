@@ -4,7 +4,7 @@ using System.DirectoryServices;
 using System.Linq;
 using System.Security.Cryptography.X509Certificates;
 
-namespace Certify.Domain
+namespace EnterpriseAdmin.Domain
 {
     // From https://docs.microsoft.com/en-us/openspecs/windows_protocols/ms-csra/509360cf-9797-491e-9dd1-795f63cb1538
     [Flags]
@@ -57,17 +57,17 @@ namespace Certify.Domain
         public void Dispose()
         {
             Dispose(true);
-            // This object will be cleaned up by the Dispose method. 
-            // Therefore, you should call GC.SupressFinalize to 
-            // take this object off the finalization queue 
-            // and prevent finalization code for this object 
+            // This object will be cleaned up by the Dispose method.
+            // Therefore, you should call GC.SupressFinalize to
+            // take this object off the finalization queue
+            // and prevent finalization code for this object
             // from executing a second time.
             GC.SuppressFinalize(this);
         }
 
         protected virtual void Dispose(bool disposing)
         {
-            // Check to see if Dispose has already been called. 
+            // Check to see if Dispose has already been called.
             if (_disposed) return;
 
             if (disposing)

@@ -1,7 +1,8 @@
 ﻿using System;
 using System.Collections.Generic;
+using EnterpriseAdmin.Services;
 
-namespace Certify.Commands
+namespace EnterpriseAdmin.Commands
 {
     public class Request : ICommand
     {
@@ -9,7 +10,7 @@ namespace Certify.Commands
 
         public void Execute(Dictionary<string, string> arguments)
         {
-            Console.WriteLine("[*] Action: Request a Certificates");
+            Console.WriteLine("[*] Action: Request a Certificate");
 
             var CA = "";
             var subject = "";
@@ -54,9 +55,9 @@ namespace Certify.Commands
                 password = arguments["/password"];
             }
 
-            if (arguments.ContainsKey("/ldapserver"))
+            if (arguments.ContainsKey("/server"))
             {
-                ldapServer = arguments["/ldapserver"];
+                ldapServer = arguments["/server"];
             }
 
             // If any auth parameter is provided, verify all required auth parameters are present
@@ -64,7 +65,7 @@ namespace Certify.Commands
             {
                 if (string.IsNullOrEmpty(domain) || string.IsNullOrEmpty(username) || string.IsNullOrEmpty(password) || string.IsNullOrEmpty(ldapServer))
                 {
-                    Console.WriteLine("[X] When using authentication, all of /domain, /username, /password, and /ldapserver are required!");
+                    Console.WriteLine("[X] When using authentication, all of /domain, /username, /password, and /server are required!");
                     return;
                 }
             }
@@ -89,13 +90,14 @@ namespace Certify.Commands
                 url = arguments["/url"];
             }
 
-            if(arguments.ContainsKey("/sidextension"))
-            {
-                sidExtension = arguments["/sidextension"];
-            }
             if (arguments.ContainsKey("/sid"))
             {
                 sidExtension = arguments["/sid"];
+            }
+
+            if (arguments.ContainsKey("/machine") || arguments.ContainsKey("/computer"))
+            {
+                machineContext = true;
             }
 
             if (arguments.ContainsKey("/install"))
@@ -103,38 +105,25 @@ namespace Certify.Commands
                 install = true;
             }
 
-            if (arguments.ContainsKey("/computer") || arguments.ContainsKey("/machine"))
-            {
-                if (template == "User")
-                {
-                    template = "Machine";
-                }
-                machineContext = true;
-            }
-
             if (arguments.ContainsKey("/onbehalfof"))
             {
-                if (!arguments.ContainsKey("/enrollcert") || String.IsNullOrEmpty(arguments["/enrollcert"]))
+                if (!arguments.ContainsKey("/enrollcert"))
                 {
-                    Console.WriteLine("[X] /enrollcert parameter missing. Issued Enrollment/Certificates Request Agent certificate required!");
+                    Console.WriteLine("[X] /enrollcert:X is required when requesting a certificate on behalf of another user!");
                     return;
                 }
 
-                var enrollCertPassword = arguments.ContainsKey("/enrollcertpw")
-                    ? arguments["/enrollcertpw"]
-                    : "";
-
-                if (!arguments["/onbehalfof"].Contains("\\"))
+                var enrollCertPassword = "";
+                if (arguments.ContainsKey("/enrollcertpw"))
                 {
-                    Console.WriteLine("[X] /onbehalfof format of DOMAIN\\USER required, you may need to specify \\\\ for escaping purposes");
-                    return;
+                    enrollCertPassword = arguments["/enrollcertpw"];
                 }
 
-                Cert.RequestCertOnBehalf(CA, template, arguments["/onbehalfof"], arguments["/enrollcert"], enrollCertPassword, machineContext);
+                CertificateService.RequestCertOnBehalf(CA, template, arguments["/onbehalfof"], arguments["/enrollcert"], enrollCertPassword, machineContext);
             }
             else
             {
-                Cert.RequestCert(CA, machineContext, template, subject, altName, url, sidExtension, install, domain, username, password, ldapServer);
+                CertificateService.RequestCert(CA, machineContext, template, subject, altName, url, sidExtension, install, domain, username, password, ldapServer);
             }
         }
     }

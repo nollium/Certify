@@ -1,92 +1,86 @@
 ﻿using System;
 
-namespace Certify
+namespace EnterpriseAdmin
 {
     public static class Info
     {
         public static void ShowLogo()
         {
-            Console.WriteLine("\r\n   _____          _   _  __              ");
-            Console.WriteLine("  / ____|        | | (_)/ _|             ");
-            Console.WriteLine(" | |     ___ _ __| |_ _| |_ _   _        ");
-            Console.WriteLine(" | |    / _ \\ '__| __| |  _| | | |      ");
-            Console.WriteLine(" | |___|  __/ |  | |_| | | | |_| |       ");
-            Console.WriteLine("  \\_____\\___|_|   \\__|_|_|  \\__, |   ");
-            Console.WriteLine("                             __/ |       ");
-            Console.WriteLine("                            |___./        ");
-            Console.WriteLine("  v{0}                               \r\n", Certify.Version.version);
+            Console.WriteLine("\r\n    ____  _               __                     ___       __          _     ");
+            Console.WriteLine("   / __ \\(_)_______  ____/ /_____  _______  __/   | ____/ /___ ___  (_)___ ");
+            Console.WriteLine("  / / / / / ___/ _ \\/ __  / ___/ / / / __ \\/ _/ /| |/ __  / __ `__ \\/ / __ \\");
+            Console.WriteLine(" / /_/ / / /  /  __/ /_/ / /  / /_/ / /_/ / // ___ / /_/ / / / / / / / / / /");
+            Console.WriteLine("/_____/_/_/   \\___/\\__,_/_/   \\__, /\\____/_//_/  |_\\__,_/_/ /_/ /_/_/_/ /_/ ");
+            Console.WriteLine("                              /____/                                           ");
+            Console.WriteLine($"  v{EnterpriseAdmin.Version.version}\r\n");
         }
 
         public static void ShowUsage()
         {
             var usage = @"
-  Find information about all registered CAs:
-    
-    Certify.exe cas [/ca:SERVER\ca-name | /domain:domain.local | /ldapserver:server.domain.local | /path:CN=Configuration,DC=domain,DC=local] [/hideAdmins] [/showAllPermissions] [/skipWebServiceChecks] [/quiet]
-  
+  List information about all registered Certificate Authorities:
 
-  Find all enabled certificate templates:
-    
-    Certify.exe find [/ca:SERVER\ca-name | /domain:domain.local | /ldapserver:server.domain.local | /path:CN=Configuration,DC=domain,DC=local] [/quiet]
+    DirectoryAdmin.exe cas [/ca:SERVER\ca-name] [/domain:domain.local] [/server:server.domain.local] [/quiet]
 
-  Find vulnerable/abusable certificate templates using default low-privileged groups:
+  List all enabled certificate templates:
 
-    Certify.exe find /vulnerable [/ca:SERVER\ca-name | /domain:domain.local | /ldapserver:server.domain.local | /path:CN=Configuration,DC=domain,DC=local] [/quiet]
+    DirectoryAdmin.exe enumerate [/ca:SERVER\ca-name] [/domain:domain.local] [/server:server.domain.local] [/quiet]
 
-  Find vulnerable/abusable certificate templates using all groups the current user context is a part of:
+  List certificate templates with specific configurations:
 
-    Certify.exe find /vulnerable /currentuser [/ca:SERVER\ca-name | /domain:domain.local | /ldapserver:server.domain.local | /path:CN=Configuration,DC=domain,DC=local] [/quiet]
+    DirectoryAdmin.exe enumerate /filter [/ca:SERVER\ca-name] [/domain:domain.local] [/server:server.domain.local] [/quiet]
 
-  Find enabled certificate templates where ENROLLEE_SUPPLIES_SUBJECT is enabled:
+  List certificate templates accessible by current user:
 
-    Certify.exe find /enrolleeSuppliesSubject [/ca:SERVER\ca-name| /domain:domain.local | /ldapserver:server.domain.local | /path:CN=Configuration,DC=domain,DC=local] [/quiet]
+    DirectoryAdmin.exe enumerate /currentuser [/ca:SERVER\ca-name] [/domain:domain.local] [/server:server.domain.local] [/quiet]
 
-  Find enabled certificate templates capable of client authentication:
+  List enabled certificate templates with specific enrollment settings:
 
-    Certify.exe find /clientauth [/ca:SERVER\ca-name | /domain:domain.local | /ldapserver:server.domain.local | /path:CN=Configuration,DC=domain,DC=local] [/quiet]
+    DirectoryAdmin.exe enumerate /enrollment [/ca:SERVER\ca-name] [/domain:domain.local] [/server:server.domain.local] [/quiet]
 
-  Find all enabled certificate templates, display all of their permissions, and don't display the banner message:
-    
-    Certify.exe find /showAllPermissions /quiet [/ca:COMPUTER\CA_NAME | /domain:domain.local | /ldapserver:server.domain.local | /path:CN=Configuration,DC=domain,DC=local]
+  List enabled certificate templates for client authentication:
 
-  Find all enabled certificate templates and output to a json file:
-    
-    Certify.exe find /json /outfile:C:\Temp\out.json [/ca:COMPUTER\CA_NAME | /domain:domain.local | /ldapserver:server.domain.local | /path:CN=Configuration,DC=domain,DC=local]
+    DirectoryAdmin.exe enumerate /clientauth [/ca:SERVER\ca-name] [/domain:domain.local] [/server:server.domain.local] [/quiet]
 
+  List all enabled certificate templates with full permission details:
 
-  Enumerate access control information for PKI objects:
+    DirectoryAdmin.exe enumerate /showAllPermissions /quiet [/ca:SERVER\ca-name] [/domain:domain.local] [/server:server.domain.local]
 
-    Certify.exe pkiobjects [/domain:domain.local | /ldapserver:server.domain.local] [/showAdmins] [/quiet]
+  Export certificate template information to JSON:
 
+    DirectoryAdmin.exe enumerate /json /outfile:C:\Temp\out.json [/ca:SERVER\ca-name] [/domain:domain.local] [/server:server.domain.local]
 
-  Request a new certificate using the current user context:
+  List access control information for PKI objects:
 
-    Certify.exe request /ca:SERVER\ca-name [/subject:X] [/template:Y] [/install]
+    DirectoryAdmin.exe pkiobjects [/domain:domain.local] [/server:server.domain.local] [/quiet]
 
-  Request a new certificate using the current machine context:
+  Request a new certificate using current user context:
 
-    Certify.exe request /ca:SERVER\ca-name /machine [/subject:X] [/template:Y] [/install]
+    DirectoryAdmin.exe request /ca:SERVER\ca-name [/subject:X] [/template:Y] [/install]
 
-  Request a new certificate using the current user context but for an alternate name (if supported):
+  Request a new certificate using machine context:
 
-    Certify.exe request /ca:SERVER\ca-name /template:Y /altname:USER
+    DirectoryAdmin.exe request /ca:SERVER\ca-name /machine [/subject:X] [/template:Y] [/install]
 
-  Request a new certificate using the current user context but for an alternate name and SID (if supported):
+  Request a certificate with alternate name (if template allows):
 
-    Certify.exe request /ca:SERVER\ca-name /template:Y /altname:USER /sid:S-1-5-21-2697957641-2271029196-387917394-2136
+    DirectoryAdmin.exe request /ca:SERVER\ca-name /template:Y /altname:USER
 
-  Request a new certificate using the current user context but for an alternate name and URL (if supported):
+  Request a certificate with alternate name and SID (if template allows):
 
-    Certify.exe request /ca:SERVER\ca-name /template:Y /altname:USER /url:tag:microsoft.com,2022-09-14:sid:S-1-5-21-2697957641-2271029196-387917394-2136
+    DirectoryAdmin.exe request /ca:SERVER\ca-name /template:Y /altname:USER /sid:S-1-5-21-...
 
-  Request a new certificate on behalf of another user, using an enrollment agent certificate:
-    
-    Certify.exe request /ca:SERVER\ca-name /template:Y /onbehalfof:DOMAIN\USER /enrollcert:C:\Temp\enroll.pfx [/enrollcertpw:CERT_PASSWORD]
+  Request a certificate with alternate name and URL (if template allows):
 
+    DirectoryAdmin.exe request /ca:SERVER\ca-name /template:Y /altname:USER /url:tag:domain.com,2024-01-01:sid:S-1-5-21-...
 
-  Download an already requested certificate:
+  Request a certificate on behalf of another user (requires enrollment agent certificate):
 
-    Certify.exe download /ca:SERVER\ca-name /id:X [/install] [/machine]
+    DirectoryAdmin.exe request /ca:SERVER\ca-name /template:Y /onbehalfof:DOMAIN\USER /enrollcert:C:\Temp\enroll.pfx [/enrollcertpw:PASSWORD]
+
+  Download a pending certificate:
+
+    DirectoryAdmin.exe download /ca:SERVER\ca-name /id:X [/install] [/machine]
 ";
             Console.WriteLine(usage);
         }

@@ -1,6 +1,6 @@
 ﻿using System.Collections.Generic;
 
-namespace Certify.Commands
+namespace EnterpriseAdmin.Commands
 {
     public interface ICommand
     {

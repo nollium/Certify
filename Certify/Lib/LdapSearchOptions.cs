@@ -1,18 +1,18 @@
-﻿namespace Certify.Lib
+﻿namespace EnterpriseAdmin.DirectoryServices
 {
-    class LdapSearchOptions
+    class DirectorySearchOptions
     {
-        public LdapSearchOptions()
+        public DirectorySearchOptions()
         {
             Domain = null;
-            LdapServer = null;
+            DirectoryServer = null;
             AuthenticationType = System.DirectoryServices.AuthenticationTypes.Secure |
                                System.DirectoryServices.AuthenticationTypes.Sealing |
                                System.DirectoryServices.AuthenticationTypes.Signing;
             Credential = null;
         }
         public string? Domain { get; set; }
-        public string? LdapServer { get; set; }
+        public string? DirectoryServer { get; set; }
         public System.DirectoryServices.AuthenticationTypes AuthenticationType { get; set; }
         public System.Net.NetworkCredential? Credential { get; set; }
     }

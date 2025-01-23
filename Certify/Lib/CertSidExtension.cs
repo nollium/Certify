@@ -8,7 +8,7 @@ using System.Text;
 //  Author: Carl Sörqvist
 //  No license
 
-namespace Certify.Lib
+namespace EnterpriseAdmin.Lib
 {
     public enum CertAltNameType
     {

@@ -1,6 +1,6 @@
 ﻿using System.DirectoryServices;
 
-namespace Certify.Domain
+namespace EnterpriseAdmin.Domain
 {
     public class ADObject
     {
@@ -9,7 +9,7 @@ namespace Certify.Domain
         public ADObject(string distinguishedName, ActiveDirectorySecurity? securityDescriptor)
         {
             DistinguishedName = distinguishedName;
-            SecurityDescriptor = securityDescriptor;    
+            SecurityDescriptor = securityDescriptor;
         }
     }
 }

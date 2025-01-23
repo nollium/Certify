@@ -5,7 +5,7 @@ using System.Security.AccessControl;
 using System.Security.Cryptography;
 using System.Security.Principal;
 
-namespace Certify.Domain
+namespace EnterpriseAdmin.Domain
 {
     class PKIObjectACE
     {

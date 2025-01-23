@@ -5,12 +5,12 @@ using System.Security;
 using System.Security.AccessControl;
 using System.Security.Cryptography.X509Certificates;
 using System.Security.Principal;
-using Certify.Lib;
+using EnterpriseAdmin.DirectoryServices;
 using Microsoft.Win32;
 
-namespace Certify.Domain
+namespace EnterpriseAdmin.Domain
 {
-    class CertificateDTO
+    class CertificateAuthorityInfo
     {
         // used for JSON serialization
         public string? SubjectName { get; }
@@ -20,24 +20,23 @@ namespace Certify.Domain
         public string? EndDate { get; }
         public List<string>? CertChain { get; }
 
-        public CertificateDTO(X509Certificate2 ca)
+        public CertificateAuthorityInfo(X509Certificate2 ca)
         {
             SubjectName = ca.SubjectName.Name;
             Thumbprint = ca.Thumbprint;
             Serial = ca.SerialNumber;
-            StartDate = ca.NotBefore.ToString(); ;
+            StartDate = ca.NotBefore.ToString();
             EndDate = ca.NotAfter.ToString();
 
-            var chain = new X509Chain();
+            // Get the certificate chain
+            X509Chain chain = new X509Chain();
             chain.Build(ca);
-            var names = new List<string>();
-            foreach (var elem in chain.ChainElements)
-            {
-                names.Add(elem.Certificate.SubjectName.Name.Replace(" ", ""));
-            }
-            //names.Reverse();
 
-            CertChain = names;
+            CertChain = new List<string>();
+            foreach (X509ChainElement element in chain.ChainElements)
+            {
+                CertChain.Add(element.Certificate.Subject);
+            }
         }
     }
 
@@ -90,7 +89,7 @@ namespace Certify.Domain
 
         public Guid? Guid { get; }
         public string? Flags { get; }
-        public List<CertificateDTO>? Certificates { get; }
+        public List<CertificateAuthorityInfo>? Certificates { get; }
 
         public List<string>? Templates { get; }
 
@@ -140,12 +139,12 @@ namespace Certify.Domain
             Templates = ca?.Templates;
             EDITF_ATTRIBUTESUBJECTALTNAME2 = userSpecifiesSanEnabled;
 
-            Certificates = new List<CertificateDTO>();
+            Certificates = new List<CertificateAuthorityInfo>();
             if (ca?.Certificates != null)
             {
                 foreach (var cert in ca.Certificates)
                 {
-                    Certificates.Add(new CertificateDTO(cert));
+                    Certificates.Add(new CertificateAuthorityInfo(cert));
                 }
             }
 
