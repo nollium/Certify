@@ -6,7 +6,9 @@
         {
             Domain = null;
             LdapServer = null;
-            AuthenticationType = System.DirectoryServices.AuthenticationTypes.Secure;
+            AuthenticationType = System.DirectoryServices.AuthenticationTypes.Secure |
+                               System.DirectoryServices.AuthenticationTypes.Sealing |
+                               System.DirectoryServices.AuthenticationTypes.Signing;
             Credential = null;
         }
         public string? Domain { get; set; }

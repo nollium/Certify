@@ -64,9 +64,10 @@ namespace Certify.Lib
             DirectoryEntry rootDse;
             if (_searchOptions.Credential != null)
             {
+                var username = $"{_searchOptions.Credential.Domain}\\{_searchOptions.Credential.UserName}";
                 rootDse = _searchOptions.Domain == null
-                    ? new DirectoryEntry("LDAP://RootDSE", _searchOptions.Credential.UserName, _searchOptions.Credential.Password, _searchOptions.AuthenticationType)
-                    : new DirectoryEntry($"LDAP://{_searchOptions.Domain}/RootDSE", _searchOptions.Credential.UserName, _searchOptions.Credential.Password, _searchOptions.AuthenticationType);
+                    ? new DirectoryEntry("LDAP://RootDSE", username, _searchOptions.Credential.Password, _searchOptions.AuthenticationType)
+                    : new DirectoryEntry($"LDAP://{_searchOptions.Domain}/RootDSE", username, _searchOptions.Credential.Password, _searchOptions.AuthenticationType);
             }
             else
             {
@@ -82,7 +83,8 @@ namespace Certify.Lib
         {
             if (_searchOptions.Credential != null)
             {
-                return new DirectoryEntry(path, _searchOptions.Credential.UserName, _searchOptions.Credential.Password, _searchOptions.AuthenticationType);
+                var username = $"{_searchOptions.Credential.Domain}\\{_searchOptions.Credential.UserName}";
+                return new DirectoryEntry(path, username, _searchOptions.Credential.Password, _searchOptions.AuthenticationType);
             }
             return new DirectoryEntry(path);
         }
